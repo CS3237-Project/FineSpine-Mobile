@@ -1,4 +1,4 @@
-# finespine
+# FineSpine
 
 A new Flutter application.
 
