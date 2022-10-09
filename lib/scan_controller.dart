@@ -10,6 +10,7 @@ class ScanController extends GetxController {
   late List<CameraDescription> _cameras;
   late CameraImage _cameraImage;
   final RxList<Uint8List> _imageList = RxList([]);
+  int _imageCount = 0;
 
   List<Uint8List> get imageList => _imageList;
   bool get isInitialised => _isInitialised.value;
@@ -20,7 +21,12 @@ class ScanController extends GetxController {
     _cameraController = CameraController(_cameras[0], ResolutionPreset.high);
     _cameraController.initialize().then((_) {
       _isInitialised.value = true;
-      _cameraController.startImageStream((image) => _cameraImage = image);
+      _cameraController.startImageStream((image) {
+        if (_imageCount % 30 == 0) {
+          _imageCount = 0;
+          // TODO sendToMqttForClassification(image)
+        }
+      });
     }).catchError((Object e) {
       if (e is CameraException) {
         switch (e.code) {
