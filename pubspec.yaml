@@ -37,6 +37,7 @@ dependencies:
   get: ^4.6.5
   camera: ^0.10.0+3
   image: ^3.2.0
+  mqtt_client: ^9.7.2
 
 dev_dependencies:
   flutter_test:
