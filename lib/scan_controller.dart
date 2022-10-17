@@ -1,8 +1,8 @@
 import 'package:camera/camera.dart';
 import 'package:flutter/foundation.dart';
 import 'package:get/get.dart';
-import 'package:get/get_state_manager/get_state_manager.dart';
 import 'package:image/image.dart' as img;
+import 'package:finespine/mqtt/mqtt_client_manager.dart';
 
 class ScanController extends GetxController {
   RxBool _isInitialised = RxBool(false);
@@ -50,6 +50,7 @@ class ScanController extends GetxController {
   }
 
   void capture() {
+    MqttClientManager.connect();
     img.Image image = img.Image.fromBytes(
         _cameraImage.width, _cameraImage.height, _cameraImage.planes[0].bytes,
         format: img.Format.bgra);

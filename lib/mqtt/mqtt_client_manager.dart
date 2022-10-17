@@ -3,11 +3,11 @@ import 'dart:io';
 import 'package:mqtt_client/mqtt_client.dart';
 import 'package:mqtt_client/mqtt_server_client.dart';
 
-class MQTTClientManager {
-  MqttServerClient client =
+class MqttClientManager {
+  static MqttServerClient client =
   MqttServerClient.withPort('10.0.2.2', 'mobile_client', 1883);
 
-  Future<int> connect() async {
+  static Future<int> connect() async {
     client.logging(on: true);
     client.keepAlivePeriod = 60;
     client.onConnected = onConnected;
@@ -32,31 +32,31 @@ class MQTTClientManager {
     return 0;
   }
 
-  void disconnect(){
+  static void disconnect(){
     client.disconnect();
   }
 
-  void subscribe(String topic) {
+  static void subscribe(String topic) {
     client.subscribe(topic, MqttQos.atLeastOnce);
   }
 
-  void onConnected() {
+  static void onConnected() {
     print('MQTTClient::Connected');
   }
 
-  void onDisconnected() {
+  static void onDisconnected() {
     print('MQTTClient::Disconnected');
   }
 
-  void onSubscribed(String topic) {
+  static void onSubscribed(String topic) {
     print('MQTTClient::Subscribed to topic: $topic');
   }
 
-  void pong() {
+  static void pong() {
     print('MQTTClient::Ping response received');
   }
 
-  void publishMessage(String topic, String message) {
+  static void publishMessage(String topic, String message) {
     final builder = MqttClientPayloadBuilder();
     builder.addString(message);
     client.publishMessage(topic, MqttQos.exactlyOnce, builder.payload!);
