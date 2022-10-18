@@ -23,6 +23,7 @@ class ScanController extends GetxController {
       _isInitialised.value = true;
       _cameraController.startImageStream((image) {
         _cameraImage = image;
+        _imageCount++;
         if (_imageCount % 30 == 0) {
           _imageCount = 0;
           // TODO sendToMqttForClassification(image)
