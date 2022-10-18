@@ -1,11 +1,12 @@
 import 'package:camera/camera.dart';
 import 'package:flutter/foundation.dart';
 import 'package:get/get.dart';
-import 'package:get/get_state_manager/get_state_manager.dart';
 import 'package:image/image.dart' as img;
+import 'package:finespine/mqtt/mqtt_client_manager.dart';
 
 class ScanController extends GetxController {
   RxBool _isInitialised = RxBool(false);
+  RxBool _isConnectedToMqtt = RxBool(false);
   late CameraController _cameraController;
   late List<CameraDescription> _cameras;
   late CameraImage _cameraImage;
@@ -14,6 +15,7 @@ class ScanController extends GetxController {
 
   List<Uint8List> get imageList => _imageList;
   bool get isInitialised => _isInitialised.value;
+  bool get isConnectedToMqtt => _isConnectedToMqtt.value;
   CameraController get cameraController => _cameraController;
 
   Future<void> initCamera() async {
@@ -50,6 +52,10 @@ class ScanController extends GetxController {
   }
 
   void capture() {
+    if (_isConnectedToMqtt.value == false) {
+      MqttClientManager.connect();
+      _isConnectedToMqtt.value = true;
+    }
     img.Image image = img.Image.fromBytes(
         _cameraImage.width, _cameraImage.height, _cameraImage.planes[0].bytes,
         format: img.Format.bgra);
