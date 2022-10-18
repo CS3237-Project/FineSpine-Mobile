@@ -28,6 +28,7 @@ class ScanController extends GetxController {
         _imageCount++;
         if (_imageCount % 30 == 0) {
           _imageCount = 0;
+          MqttClientManager.sendImage('lib/images/', 'images');
           // TODO sendToMqttForClassification(image)
         }
       });

@@ -1,7 +1,9 @@
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:mqtt_client/mqtt_client.dart';
 import 'package:mqtt_client/mqtt_server_client.dart';
+import 'package:flutter/services.dart' show Uint8List;
 
 class MqttClientManager {
   static MqttServerClient client =
@@ -60,6 +62,17 @@ class MqttClientManager {
     final builder = MqttClientPayloadBuilder();
     builder.addString(message);
     client.publishMessage(topic, MqttQos.exactlyOnce, builder.payload!);
+  }
+
+  static Future<void> sendImage(String fileLocalPath, String topic)  async {
+    Directory folder = Directory(fileLocalPath);
+    folder.list().forEach((element) async {
+      File imageFile = File(element.path); //convert Path to File
+      Uint8List imageBytes = await imageFile.readAsBytes(); //convert to bytes
+      String base64string = base64.encode(imageBytes);
+      publishMessage(topic, base64string);
+      await imageFile.delete(); //delete file after publishing
+    });
   }
 
   Stream<List<MqttReceivedMessage<MqttMessage>>>? getMessagesStream() {
