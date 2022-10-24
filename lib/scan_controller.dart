@@ -7,6 +7,7 @@ import 'package:finespine/mqtt/mqtt_client_manager.dart';
 class ScanController extends GetxController {
   RxBool _isInitialised = RxBool(false);
   RxBool _isConnectedToMqtt = RxBool(false);
+  RxBool isActivated = RxBool(false);
   late CameraController _cameraController;
   late List<CameraDescription> _cameras;
   late CameraImage _cameraImage;
@@ -23,15 +24,16 @@ class ScanController extends GetxController {
     _cameraController = CameraController(_cameras[0], ResolutionPreset.high);
     _cameraController.initialize().then((_) {
       _isInitialised.value = true;
-      _cameraController.startImageStream((image) {
-        _cameraImage = image;
-        _imageCount++;
-        if (_imageCount % 30 == 0) {
-          _imageCount = 0;
-          MqttClientManager.sendImage(_cameraImage, 'image');
-          // TODO sendToMqttForClassification(image)
-        }
-      });
+      isActivated.value = true;
+        _cameraController.startImageStream((image) {
+          _cameraImage = image;
+          _imageCount++;
+          if (_imageCount % 30 == 0) {
+            _imageCount = 0;
+            MqttClientManager.sendImage(_cameraImage, 'image');
+          }
+        });
+
     }).catchError((Object e) {
       if (e is CameraException) {
         switch (e.code) {
@@ -46,17 +48,32 @@ class ScanController extends GetxController {
     });
   }
 
-  @override
-  void onInit() {
-    initCamera();
-    super.onInit();
+  void disposeCamera() {
+    if(_isInitialised.value == true){
+      _cameraController.stopImageStream();
+      isActivated.value = false;
+    }
+
   }
 
-  void capture() {
+  @override
+  void onInit() {
     if (_isConnectedToMqtt.value == false) {
       MqttClientManager.connect();
       _isConnectedToMqtt.value = true;
     }
+    MqttClientManager.getActivationSignal();
+    super.onInit();
+  }
+
+  @override
+  void dispose() {
+    MqttClientManager.disconnect();
+    super.dispose();
+  }
+
+
+  void capture() {
     img.Image image = img.Image.fromBytes(
         _cameraImage.width, _cameraImage.height, _cameraImage.planes[0].bytes,
         format: img.Format.bgra);

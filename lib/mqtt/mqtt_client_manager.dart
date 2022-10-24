@@ -2,14 +2,16 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:camera/camera.dart';
+import 'package:get/get.dart';
 import 'package:mqtt_client/mqtt_client.dart';
 import 'package:mqtt_client/mqtt_server_client.dart';
 import 'package:flutter/services.dart' show Uint8List;
 import 'package:image/image.dart' as img;
+import 'package:finespine/scan_controller.dart';
 
-class MqttClientManager {
+class MqttClientManager  {
   static MqttServerClient client =
-  MqttServerClient.withPort('10.0.2.2', 'mobile_client', 1883);
+  MqttServerClient.withPort('165.22.110.229', 'mobile_client', 1883);
 
   static Future<int> connect() async {
     client.logging(on: true);
@@ -25,11 +27,13 @@ class MqttClientManager {
 
     try {
       await client.connect();
+      subscribe("message/Activation");
+      subscribe("posture");
     } on NoConnectionException catch (e) {
-      print('MQTTClient::Client exception - $e');
+      // print('MQTTClient::Client exception - $e');
       client.disconnect();
     } on SocketException catch (e) {
-      print('MQTTClient::Socket exception - $e');
+      // print('MQTTClient::Socket exception - $e');
       client.disconnect();
     }
 
@@ -45,19 +49,19 @@ class MqttClientManager {
   }
 
   static void onConnected() {
-    print('MQTTClient::Connected');
+    // print('MQTTClient::Connected');
   }
 
   static void onDisconnected() {
-    print('MQTTClient::Disconnected');
+    // print('MQTTClient::Disconnected');
   }
 
   static void onSubscribed(String topic) {
-    print('MQTTClient::Subscribed to topic: $topic');
+    // print('MQTTClient::Subscribed to topic: $topic');
   }
 
   static void pong() {
-    print('MQTTClient::Ping response received');
+    // print('MQTTClient::Ping response received');
   }
 
   static void publishMessage(String topic, String message) {
@@ -76,7 +80,30 @@ class MqttClientManager {
     publishMessage(topic, base64string);
   }
 
-  Stream<List<MqttReceivedMessage<MqttMessage>>>? getMessagesStream() {
-    return client.updates;
+  static final ScanController scanController = Get.find();
+
+  static void getActivationSignal() {
+    client.updates?.listen((List<MqttReceivedMessage<MqttMessage>> c) {
+      final MqttPublishMessage message = c[0].payload as MqttPublishMessage;
+      final payload =
+      MqttPublishPayload.bytesToStringAsString(message.payload.message);
+
+      if (c[0].topic == 'message/Activation'){
+        if (payload == 'Camera Activation Signal On'){
+          if (scanController.isActivated.value == false){
+            scanController.initCamera();
+          }
+
+        } else if (payload == 'Camera Activation Signal Off'){
+          if (scanController.isActivated.value == true) {
+            scanController.disposeCamera();
+          }
+        }
+      }
+
+    });
+
   }
+
+
 }
