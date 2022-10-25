@@ -92,11 +92,13 @@ class MqttClientManager  {
         if (payload == 'Camera Activation Signal On'){
           if (scanController.isActivated.value == false){
             scanController.initCamera();
+            publishMessage('message/Acknowledgement', 'Camera On');
           }
 
         } else if (payload == 'Camera Activation Signal Off'){
           if (scanController.isActivated.value == true) {
             scanController.disposeCamera();
+            publishMessage('message/Acknowledgement', 'Camera Off');
           }
         }
       }
