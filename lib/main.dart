@@ -21,4 +21,6 @@ class MyApp extends StatelessWidget {
       initialBinding: GlobalBindings(),
     );
   }
+
+
 }
