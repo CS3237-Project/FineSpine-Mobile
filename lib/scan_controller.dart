@@ -25,15 +25,14 @@ class ScanController extends GetxController {
     _cameraController.initialize().then((_) {
       _isInitialised.value = true;
       isActivated.value = true;
-        _cameraController.startImageStream((image) {
-          _cameraImage = image;
-          _imageCount++;
-          if (_imageCount % 30 == 0) {
-            _imageCount = 0;
-            MqttClientManager.sendImage(_cameraImage, 'image');
-          }
-        });
-
+      _cameraController.startImageStream((image) {
+        _cameraImage = image;
+        _imageCount++;
+        if (_imageCount % 90 == 0) {
+          _imageCount = 0;
+          MqttClientManager.sendImage(_cameraImage, 'image');
+        }
+      });
     }).catchError((Object e) {
       if (e is CameraException) {
         switch (e.code) {
@@ -49,11 +48,10 @@ class ScanController extends GetxController {
   }
 
   void disposeCamera() {
-    if(_isInitialised.value == true){
+    if (_isInitialised.value == true) {
       _cameraController.stopImageStream();
       isActivated.value = false;
     }
-
   }
 
   @override
@@ -71,7 +69,6 @@ class ScanController extends GetxController {
     MqttClientManager.disconnect();
     super.dispose();
   }
-
 
   void capture() {
     img.Image image = img.Image.fromBytes(
