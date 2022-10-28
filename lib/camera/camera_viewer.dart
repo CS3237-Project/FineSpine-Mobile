@@ -9,11 +9,9 @@ class CameraViewer extends GetView<ScanController> {
   @override
   Widget build(BuildContext context) {
     return GetX<ScanController>(builder: (controller) {
-      print("Camera viewer ${controller.isActivated.value}");
       if (!controller.isInitialised || controller.isActivated.value == false) {
         return Container();
-      }print("fgshhjavfhasbf  ${controller.cameraController}");
-
+      }
       return SizedBox(
         child: CameraPreview(controller.cameraController),
         height: Get.height,

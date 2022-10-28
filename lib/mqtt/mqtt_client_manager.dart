@@ -9,9 +9,9 @@ import 'package:flutter/services.dart' show Uint8List;
 import 'package:image/image.dart' as img;
 import 'package:finespine/scan_controller.dart';
 
-class MqttClientManager  {
+class MqttClientManager {
   static MqttServerClient client =
-  MqttServerClient.withPort('165.22.110.229', 'mobile_client', 1883);
+      MqttServerClient.withPort('34.81.217.13', 'mobile_client', 1884);
 
   static Future<int> connect() async {
     client.logging(on: true);
@@ -22,7 +22,7 @@ class MqttClientManager  {
     client.pongCallback = pong;
 
     final connMessage =
-    MqttConnectMessage().startClean().withWillQos(MqttQos.atLeastOnce);
+        MqttConnectMessage().startClean().withWillQos(MqttQos.atLeastOnce);
     client.connectionMessage = connMessage;
 
     try {
@@ -40,7 +40,7 @@ class MqttClientManager  {
     return 0;
   }
 
-  static void disconnect(){
+  static void disconnect() {
     client.disconnect();
   }
 
@@ -70,7 +70,7 @@ class MqttClientManager  {
     client.publishMessage(topic, MqttQos.exactlyOnce, builder.payload!);
   }
 
-  static Future<void> sendImage(CameraImage cameraImage, String topic)  async {
+  static Future<void> sendImage(CameraImage cameraImage, String topic) async {
     img.Image image = img.Image.fromBytes(
         cameraImage.width, cameraImage.height, cameraImage.planes[0].bytes,
         format: img.Format.bgra);
@@ -86,26 +86,21 @@ class MqttClientManager  {
     client.updates?.listen((List<MqttReceivedMessage<MqttMessage>> c) {
       final MqttPublishMessage message = c[0].payload as MqttPublishMessage;
       final payload =
-      MqttPublishPayload.bytesToStringAsString(message.payload.message);
+          MqttPublishPayload.bytesToStringAsString(message.payload.message);
 
-      if (c[0].topic == 'message/Activation'){
-        if (payload == 'Camera Activation Signal On'){
-          if (scanController.isActivated.value == false){
+      if (c[0].topic == 'message/Activation') {
+        if (payload == 'Camera Activation Signal On') {
+          if (scanController.isActivated.value == false) {
             scanController.initCamera();
             publishMessage('message/Acknowledgement', 'Camera On');
           }
-
-        } else if (payload == 'Camera Activation Signal Off'){
+        } else if (payload == 'Camera Activation Signal Off') {
           if (scanController.isActivated.value == true) {
             scanController.disposeCamera();
             publishMessage('message/Acknowledgement', 'Camera Off');
           }
         }
       }
-
     });
-
   }
-
-
 }

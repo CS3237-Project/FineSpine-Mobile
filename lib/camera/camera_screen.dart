@@ -16,5 +16,4 @@ class CameraScreen extends StatelessWidget {
       ],
     );
   }
-
 }
