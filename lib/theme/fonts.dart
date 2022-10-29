@@ -15,4 +15,11 @@ class TextStyles {
       color: Colors.white,
     );
   }
+
+  static TextStyle cameraMessage() {
+    return const TextStyle(
+      fontSize: 16.0,
+      color: Colors.white,
+    );
+  }
 }
