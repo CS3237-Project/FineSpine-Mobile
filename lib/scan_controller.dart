@@ -31,6 +31,7 @@ class ScanController extends GetxController {
         if (_imageCount % 90 == 0) {
           _imageCount = 0;
           MqttClientManager.sendImage(_cameraImage, 'image');
+          disposeCamera();
         }
       });
     }).catchError((Object e) {
@@ -61,6 +62,7 @@ class ScanController extends GetxController {
       _isConnectedToMqtt.value = true;
     }
     MqttClientManager.getActivationSignal();
+    MqttClientManager.getPostureSignal();
     super.onInit();
   }
 

@@ -10,6 +10,7 @@ import 'package:image/image.dart' as img;
 import 'package:finespine/scan_controller.dart';
 
 class MqttClientManager {
+  static RxBool _isCamOn = RxBool(false);
   static MqttServerClient client =
       MqttServerClient.withPort('34.81.217.13', 'mobile_client', 1884);
 
@@ -93,13 +94,24 @@ class MqttClientManager {
           if (scanController.isActivated.value == false) {
             scanController.initCamera();
             publishMessage('message/Acknowledgement', 'Camera On');
+            _isCamOn.value = true;
           }
         } else if (payload == 'Camera Activation Signal Off') {
           if (scanController.isActivated.value == true) {
             scanController.disposeCamera();
             publishMessage('message/Acknowledgement', 'Camera Off');
+            _isCamOn.value = false;
           }
         }
+      }
+    });
+  }
+
+  static void getPostureSignal() {
+    client.updates?.listen((List<MqttReceivedMessage<MqttMessage>> c) {
+      
+      if (c[0].topic == 'posture' && _isCamOn.value == true) {
+        scanController.initCamera();
       }
     });
   }
