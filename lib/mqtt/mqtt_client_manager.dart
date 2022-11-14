@@ -9,7 +9,7 @@ import 'package:image/image.dart' as img;
 
 class MqttClientManager {
   static MqttServerClient client =
-  MqttServerClient.withPort('10.0.2.2', 'mobile_client', 1883);
+  MqttServerClient.withPort('192.168.1.244', 'mobile_client', 1883);
 
   static Future<int> connect() async {
     client.logging(on: true);
